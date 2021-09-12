@@ -47,7 +47,7 @@ namespace LabAutomapper
 
                         cfg.CreateMap<Employee, EmployeeDTO>()
                             .ForMember(dest => dest.FullName, act => act.MapFrom(src => src.Name + " " + src.Surname))
-                            .ForMember(dest => dest.Department, act => act.MapFrom(new DepartmentResolver()))
+                            .ForMember(dest => dest.Department, act => act.MapFrom(new DepartmentResolver())) // Custom Resolver
                             .ForMember(dest => dest.Skills, act => act.MapFrom(src => src.Skills));
 
                     }
