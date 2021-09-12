@@ -19,12 +19,17 @@ namespace LabAutomapper
             // Get fake data
             List<Employee> employees = CreateEmployees();
 
-            //Automapepr -> Map
+            // Automapepr --> Map 
             List<EmployeeDTO> employeesDTO = mapper.Map<List<EmployeeDTO>>(employees);
 
-            foreach(EmployeeDTO e in employeesDTO)
+            //// Updating the list
+
+            //// Automapper --> Map over modified list
+            //List<EmployeeDTO> employeesDTO = mapper.Map<List<EmployeeDTO>>(employees);
+
+            foreach (EmployeeDTO e in employeesDTO)
             {
-                Console.WriteLine($" - EMMPLOYEE: {e.FullName} (bday: {e.Birthday.ToShortDateString()}) at department {e.Department.Name}");
+                Console.WriteLine($" - EMMPLOYEE: {e.FullName} (bday: {e.Birthday.ToShortDateString()}) at department {e.Department.Name} // {e.Skills.Count} skills found!");
             }
 
             Console.ReadKey();
@@ -36,17 +41,43 @@ namespace LabAutomapper
                 new MapperConfiguration(
                     cfg =>
                     {
+                        cfg.CreateMap<Skill, SkillDTO>();
+
                         cfg.CreateMap<Department, DepartmentDTO>();
 
                         cfg.CreateMap<Employee, EmployeeDTO>()
                             .ForMember(dest => dest.FullName, act => act.MapFrom(src => src.Name + " " + src.Surname))
-                            .ForMember(dest => dest.Department, act => act.MapFrom(src => src.Department));
+                            .ForMember(dest => dest.Department, act => act.MapFrom(new DepartmentResolver()))
+                            .ForMember(dest => dest.Skills, act => act.MapFrom(src => src.Skills));
 
                     }
                 );
 
             return config;
         }
+
+        public class DepartmentResolver : IValueResolver<Employee, EmployeeDTO, DepartmentDTO>
+        {
+            public DepartmentDTO Resolve(Employee source, EmployeeDTO dest, DepartmentDTO destMember, ResolutionContext context)
+            {
+                if(source.Department == null)
+                {
+                    return new DepartmentDTO
+                    {
+                        Name = "Default"
+                    };
+                }
+                else
+                {
+                    return new DepartmentDTO
+                    {
+                        Name = source?.Department?.Name
+                    };
+                }
+
+            }
+        }
+
 
         /// <summary>
         /// Creates a fake list of employees with fake departments
@@ -64,31 +95,60 @@ namespace LabAutomapper
                 Name = "IT"
             };
 
+            Skill skillC = new Skill
+            {
+                Name = "C"
+            };
+            Skill skillJava = new Skill
+            {
+                Name = "Java"
+            };
+            Skill skillSwift = new Skill
+            {
+                Name = "Swift"
+            };
+            Skill skillKotlin = new Skill
+            {
+                Name = "Kotlin "
+            };
+
+
             employees = new List<Employee>
             {
                 new Employee
                 {
                     Name = "David Biencinto",
                     Birthday = new DateTime(1976,1,14),
-                    Department = deptTI
+                    Department = deptTI,
+                    Skills = new List<Skill>{
+                        skillC,
+                        skillSwift
+                    }
                 },
                 new Employee
                 {
                     Name = "Adan Martín",
                     Birthday = new DateTime(1980,5,31),
                     Department = deptTI
+                    ,
+                    Skills = new List<Skill>{
+                        skillC
+                    }
                 },
                 new Employee
                 {
                     Name = "Ford Fairlane",
                     Birthday = new DateTime(1978,3,11),
-                    Department = deptHR
                 },
                 new Employee
                 {
                     Name = "Paula Gómez",
                     Birthday = new DateTime(1978,3,11),
-                    Department = deptHR
+                    Department = deptHR,
+                    Skills = new List<Skill>{
+                        skillJava,
+                        skillKotlin
+                    }
                 }
 
             };

@@ -10,9 +10,10 @@ namespace LabAutomapper.Models
     {
         public string Name { get; set; }
         public string Surname { get; set; }
-
         public DateTime Birthday { get; set; }
+
         public Department Department { get; set; }
 
+        public List<Skill> Skills { get; set; }
     }
 }
